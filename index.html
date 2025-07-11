@@ -3,25 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:;">
     <title>🐱 猫カフェ帝国 - 放置ゲーム</title>
     
     <!-- PWA設定 -->
-    <link rel="manifest" href="manifest.json">
+    <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoi8J+QsSDovrrnkKvjgqfjgqfluJXlm70iLCJzaG9ydF9uYW1lIjoi8J+QseOCq+ODleOCp+W4lSIsInN0YXJ0X3VybCI6Ii4vIiwiZGlzcGxheSI6InN0YW5kYWxvbmUiLCJiYWNrZ3JvdW5kX2NvbG9yIjoiI0ZGRTRFMSIsInRoZW1lX2NvbG9yIjoiI0ZGNjlCNCIsImljb25zIjpbeyJzcmMiOiJkYXRhOmltYWdlL3N2Zyt4bWw7YmFzZTY0LFBITjJaeUI0Yld4dWN6MGlhSFIwY0RvdkwzZDNkeTUzTXk1dmNtY3ZNakF3TUM5emRtY2lJSGRwWkhSb1BTSXhPVEppSWlCb1pXbG5hSFE5SWpFNU1tSWlJR1pwYkd3OUlpTkdSa1k1UWpRaVBqeDBaWGgwSUhnOUlqazJJaUI1UFNJeE1ERWlJR1p2Ym5RdGMybDZaVDBpTmpRaVBqcXA4SitwOGZEdUlHNWxheUJqWVdabElEd3ZkR1Y0ZEQ0OEwzTjJaejQ9Iiwic2l6ZXMiOiIxOTJ4MTkyIiwidHlwZSI6ImltYWdlL3N2Zyt4bWwifSx7InNyYyI6ImRhdGE6aW1hZ2Uvc3ZnK3htbDtiYXNlNjQsUEhOMlp5QjRiV3h1Y3owaWFIUjBjRG92TDNkM2R5NTNNeTV2Y21jdk1qQXdNQzl6ZG1jaUlIZHBaSFJvUFNJMU1USmFJaUJvWldsbmFIUTlJalV4TW1vaUlHWnBiR3c5SWlOR1JrWTVRalFpUGp4MFpYaDBJSGc5SWpJMU5pSWdlVDBpTWpjeElpQm1iMjUwTFhOcGVtVTlJakZqTWlJK09xbnduNm54OE80Z2JtVnJJR05oWm1VZ1BDOTBaWGgwUGp3dmMzWm5QZz09Iiwic2l6ZXMiOiI1MTJ4NTEyIiwidHlwZSI6ImltYWdlL3N2Zyt4bWwifV19">
     <meta name="theme-color" content="#FF69B4">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="猫カフェ帝国">
-    <link rel="apple-touch-icon" href="icon-192.png">
-    <link rel="icon" href="data:,">
     
     <!-- SEO・OGP設定 -->
     <meta name="description" content="クリックして猫を集めよう！放置して帝国を築こう！かわいい猫たちと一緒に最強の猫帝国を作り上げる放置系クリッカーゲーム">
     <meta property="og:title" content="猫カフェ帝国 - 放置ゲーム">
     <meta property="og:description" content="クリックして猫を集めよう！放置して帝国を築こう！">
     <meta property="og:type" content="website">
-    <meta property="og:image" content="icon-512.png">
     
     <style>
         * {
@@ -715,8 +711,6 @@
 
         // 猫クリック（修正版）
         function clickCat(event) {
-            console.log('clickCat called');
-            
             let clickValue = gameData.clickPower * (1 + gameData.prestigePoints * 0.1);
             let isCritical = false;
             
@@ -743,7 +737,7 @@
                 }, 500);
                 
                 // クリティカルテキスト表示
-                showCriticalText(`💥 CRITICAL! x${multiplier.toFixed(1)}`, event);
+                showCriticalText('💥 CRITICAL! x' + multiplier.toFixed(1), event);
             } else {
                 // クリティカルでない場合は連続カウントをリセット
                 gameData.randomEvents.consecutiveCriticals = 0;
@@ -753,13 +747,11 @@
             gameData.totalClicks++;
             gameData.totalCatsEver += clickValue;
             
-            console.log('Added cats:', clickValue, 'Total cats:', gameData.cats);
-            
             // 浮遊テキスト表示
             if (isCritical) {
-                showFloatingText(`+${formatNumber(clickValue)}`, event, '#FFD700');
+                showFloatingText('+' + formatNumber(clickValue), event, '#FFD700');
             } else {
-                showFloatingText(`+${formatNumber(clickValue)}`, event);
+                showFloatingText('+' + formatNumber(clickValue), event);
             }
             
             checkAchievements();
@@ -784,8 +776,9 @@
             }, 3000);
         }
 
-        // 浮遊テキスト表示（修正版）
-        function showFloatingText(text, event, color = '#FF69B4') {
+        // 浮遊テキスト表示
+        function showFloatingText(text, event, color) {
+            color = color || '#FF69B4';
             const floatingText = document.createElement('div');
             floatingText.className = 'floating-text';
             floatingText.textContent = text;
@@ -803,22 +796,20 @@
 
         // ゴールデン猫クリック
         function clickGoldenCat() {
-            const bonus = Math.floor(gameData.cats * 0.1) + 1000; // 現在の猫の10% + 1000
+            const bonus = Math.floor(gameData.cats * 0.1) + 1000;
             gameData.cats += bonus;
             gameData.totalCatsEver += bonus;
             
-            // ゴールデン猫を非表示
             const goldenCat = document.getElementById('goldenCat');
             goldenCat.style.display = 'none';
             gameData.randomEvents.goldenCatActive = false;
             
-            // 実績チェック
             if (!gameData.achievements.firstGoldenCat) {
                 gameData.achievements.firstGoldenCat = true;
                 showAchievement("黄金の出会い");
             }
             
-            showGameNotification(`🌟 ゴールデン猫！ +${formatNumber(bonus)} 猫獲得！`, 'success');
+            showGameNotification('🌟 ゴールデン猫！ +' + formatNumber(bonus) + ' 猫獲得！', 'success');
             updateDisplay();
         }
 
@@ -828,31 +819,24 @@
             let message = '';
             
             if (treasureType < 0.4) {
-                // 猫ボーナス
                 const bonus = Math.floor(gameData.cats * 0.25) + 5000;
                 gameData.cats += bonus;
                 gameData.totalCatsEver += bonus;
-                message = `💎 宝箱発見！ +${formatNumber(bonus)} 猫獲得！`;
+                message = '💎 宝箱発見！ +' + formatNumber(bonus) + ' 猫獲得！';
             } else if (treasureType < 0.7) {
-                // クリック力アップ
                 gameData.clickPower += 5;
-                message = `💎 宝箱発見！ クリック力 +5！`;
+                message = '💎 宝箱発見！ クリック力 +5！';
             } else if (treasureType < 0.9) {
-                // 一時的な生産量ブースト
-                message = `💎 宝箱発見！ 30秒間生産量2倍！`;
-                // TODO: 実装する場合は一時的なブースト機能を追加
+                message = '💎 宝箱発見！ 30秒間生産量2倍！';
             } else {
-                // レアボーナス
                 gameData.prestigePoints += 1;
-                message = `💎 超レア！ プレステージポイント +1！`;
+                message = '💎 超レア！ プレステージポイント +1！';
             }
             
-            // 宝箱を非表示
             const treasureBox = document.getElementById('treasureBox');
             treasureBox.style.display = 'none';
             gameData.randomEvents.treasureBoxActive = false;
             
-            // 実績チェック
             if (!gameData.achievements.firstTreasure) {
                 gameData.achievements.firstTreasure = true;
                 showAchievement("トレジャーハンター");
@@ -866,7 +850,6 @@
         function checkRandomEvents() {
             const now = Date.now();
             
-            // ゴールデン猫の出現（30秒～2分に1回）
             if (!gameData.randomEvents.goldenCatActive && 
                 now - gameData.randomEvents.lastEventTime > 30000) {
                 if (Math.random() < 0.3) {
@@ -875,7 +858,6 @@
                 }
             }
             
-            // 宝箱の出現（1分～3分に1回）
             if (!gameData.randomEvents.treasureBoxActive && 
                 now - gameData.randomEvents.lastEventTime > 60000) {
                 if (Math.random() < 0.2) {
@@ -891,7 +873,6 @@
             goldenCat.style.display = 'block';
             gameData.randomEvents.goldenCatActive = true;
             
-            // 15秒後に自動で消える
             setTimeout(() => {
                 if (gameData.randomEvents.goldenCatActive) {
                     goldenCat.style.display = 'none';
@@ -906,7 +887,6 @@
             treasureBox.style.display = 'block';
             gameData.randomEvents.treasureBoxActive = true;
             
-            // 20秒後に自動で消える
             setTimeout(() => {
                 if (gameData.randomEvents.treasureBoxActive) {
                     treasureBox.style.display = 'none';
@@ -928,7 +908,7 @@
                     status += '💎 宝箱出現中！ ';
                 }
                 if (gameData.randomEvents.consecutiveCriticals > 0) {
-                    status += `🔥 クリティカル ${gameData.randomEvents.consecutiveCriticals}連続！ `;
+                    status += '🔥 クリティカル ' + gameData.randomEvents.consecutiveCriticals + '連続！ ';
                 }
                 
                 statusElement.textContent = status || '待機中...';
@@ -937,116 +917,61 @@
 
         // アップグレード購入
         function buyUpgrade(upgradeKey) {
-            console.log('buyUpgrade called with:', upgradeKey);
+            const upgrade = upgradeData[upgradeKey];
+            if (!upgrade) return;
             
-            try {
-                const upgrade = upgradeData[upgradeKey];
-                if (!upgrade) {
-                    console.error('Upgrade not found:', upgradeKey);
-                    return;
+            const cost = getUpgradeCost(upgradeKey);
+            
+            if (gameData.cats >= cost) {
+                gameData.cats -= cost;
+                gameData.upgrades[upgradeKey]++;
+                
+                showPurchaseEffect(cost, upgrade.name);
+                
+                if (upgradeKey === 'clickUpgrade') {
+                    gameData.clickPower += upgrade.clickBonus;
                 }
                 
-                const cost = getUpgradeCost(upgradeKey);
-                
-                console.log('Current cats:', gameData.cats, 'Cost:', cost);
-                
-                if (gameData.cats >= cost) {
-                    gameData.cats -= cost;
-                    gameData.upgrades[upgradeKey]++;
-                    
-                    console.log('Purchase successful! New count:', gameData.upgrades[upgradeKey]);
-                    
-                    showPurchaseEffect(cost, upgrade.name);
-                    
-                    if (upgradeKey === 'clickUpgrade') {
-                        gameData.clickPower += upgrade.clickBonus;
-                    }
-                    
-                    // 初回アップグレード実績チェック
-                    if (!gameData.achievements.firstUpgrade) {
-                        gameData.achievements.firstUpgrade = true;
-                        showAchievement("始まりの一歩");
-                    }
-                    
-                    checkAchievements();
-                    updateDisplay();
-                    
-                    playPurchaseSound();
-                } else {
-                    console.log('Not enough cats!');
-                    showInsufficientFunds();
+                if (!gameData.achievements.firstUpgrade) {
+                    gameData.achievements.firstUpgrade = true;
+                    showAchievement("始まりの一歩");
                 }
-            } catch (error) {
-                console.error('Error in buyUpgrade:', error);
-                showGameNotification('❌ 購入エラーが発生しました: ' + error.message, 'error');
+                
+                checkAchievements();
+                updateDisplay();
+            } else {
+                showInsufficientFunds();
             }
         }
 
         // 購入エフェクト表示
         function showPurchaseEffect(cost, upgradeName) {
-            console.log('showPurchaseEffect called');
+            const catCountElement = document.getElementById('catCount');
+            catCountElement.style.color = '#FF6347';
+            catCountElement.style.transform = 'scale(0.9)';
             
-            try {
-                const catCountElement = document.getElementById('catCount');
-                catCountElement.style.color = '#FF6347';
-                catCountElement.style.transform = 'scale(0.9)';
-                
-                setTimeout(() => {
-                    catCountElement.style.color = '#FF1493';
-                    catCountElement.style.transform = 'scale(1)';
-                }, 200);
-                
-                showGameNotification(`💰 購入: ${upgradeName}<br>💸 -${formatNumber(cost)} 猫`, 'success');
-                
-            } catch (error) {
-                console.error('Error in showPurchaseEffect:', error);
-            }
+            setTimeout(() => {
+                catCountElement.style.color = '#FF1493';
+                catCountElement.style.transform = 'scale(1)';
+            }, 200);
+            
+            showGameNotification('💰 購入: ' + upgradeName + '<br>💸 -' + formatNumber(cost) + ' 猫', 'success');
         }
 
         // 資金不足警告
         function showInsufficientFunds() {
-            console.log('showInsufficientFunds called');
+            const catCountElement = document.getElementById('catCount');
+            catCountElement.style.color = '#FF0000';
+            catCountElement.style.transform = 'scale(1.1)';
+            catCountElement.style.animation = 'shake 0.5s ease-in-out';
             
-            try {
-                const catCountElement = document.getElementById('catCount');
-                catCountElement.style.color = '#FF0000';
-                catCountElement.style.transform = 'scale(1.1)';
-                catCountElement.style.animation = 'shake 0.5s ease-in-out';
-                
-                setTimeout(() => {
-                    catCountElement.style.color = '#FF1493';
-                    catCountElement.style.transform = 'scale(1)';
-                    catCountElement.style.animation = '';
-                }, 500);
-                
-                showGameNotification('❌ 猫が足りません！', 'error');
-                
-            } catch (error) {
-                console.error('Error in showInsufficientFunds:', error);
-            }
-        }
-
-        // 購入音効果
-        function playPurchaseSound() {
-            try {
-                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                const oscillator = audioContext.createOscillator();
-                const gainNode = audioContext.createGain();
-                
-                oscillator.connect(gainNode);
-                gainNode.connect(audioContext.destination);
-                
-                oscillator.frequency.value = 800;
-                oscillator.type = 'square';
-                
-                gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
-                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
-                
-                oscillator.start(audioContext.currentTime);
-                oscillator.stop(audioContext.currentTime + 0.2);
-            } catch (e) {
-                console.log('Audio not available');
-            }
+            setTimeout(() => {
+                catCountElement.style.color = '#FF1493';
+                catCountElement.style.transform = 'scale(1)';
+                catCountElement.style.animation = '';
+            }, 500);
+            
+            showGameNotification('❌ 猫が足りません！', 'error');
         }
 
         // アップグレードコスト計算
@@ -1061,7 +986,8 @@
             let cps = 0;
             const prestigeMultiplier = 1 + gameData.prestigePoints * 0.1;
             
-            for (const [key, upgrade] of Object.entries(upgradeData)) {
+            for (const key in upgradeData) {
+                const upgrade = upgradeData[key];
                 if (upgrade.production > 0) {
                     cps += gameData.upgrades[key] * upgrade.production * prestigeMultiplier;
                 }
@@ -1077,319 +1003,288 @@
 
         // プレステージ機能
         function prestige() {
-            try {
-                console.log('⭐ Prestige attempt. Total cats ever:', gameData.totalCatsEver);
+            if (gameData.totalCatsEver >= 1000000) {
+                const newPrestigePoints = Math.floor(Math.sqrt(gameData.totalCatsEver / 1000000));
+                gameData.prestigePoints += newPrestigePoints;
                 
-                if (gameData.totalCatsEver >= 1000000) {
-                    const newPrestigePoints = Math.floor(Math.sqrt(gameData.totalCatsEver / 1000000));
-                    gameData.prestigePoints += newPrestigePoints;
-                    
-                    console.log('⭐ Prestige successful! Gained', newPrestigePoints, 'points');
-                    
-                    // リセット
-                    gameData.cats = 0;
-                    gameData.totalClicks = 0;
-                    gameData.clickPower = 1;
-                    gameData.totalCatsEver = 0;
-                    for (const key in gameData.upgrades) {
-                        gameData.upgrades[key] = 0;
-                    }
-                    
-                    // ランダムイベントもリセット
-                    gameData.randomEvents.goldenCatActive = false;
-                    gameData.randomEvents.treasureBoxActive = false;
-                    gameData.randomEvents.consecutiveCriticals = 0;
-                    document.getElementById('goldenCat').style.display = 'none';
-                    document.getElementById('treasureBox').style.display = 'none';
-                    
-                    checkAchievements();
-                    updateDisplay();
-                    
-                    showGameNotification(`⭐ プレステージ成功！${newPrestigePoints}ポイント獲得！`, 'success');
-                } else {
-                    console.log('❌ Not enough cats for prestige');
-                    showGameNotification('❌ プレステージには100万匹が必要です', 'error');
+                // リセット
+                gameData.cats = 0;
+                gameData.totalClicks = 0;
+                gameData.clickPower = 1;
+                gameData.totalCatsEver = 0;
+                for (const key in gameData.upgrades) {
+                    gameData.upgrades[key] = 0;
                 }
-            } catch (error) {
-                console.error('❌ Error in prestige:', error);
-                showGameNotification('❌ プレステージエラーが発生しました', 'error');
+                
+                // ランダムイベントもリセット
+                gameData.randomEvents.goldenCatActive = false;
+                gameData.randomEvents.treasureBoxActive = false;
+                gameData.randomEvents.consecutiveCriticals = 0;
+                document.getElementById('goldenCat').style.display = 'none';
+                document.getElementById('treasureBox').style.display = 'none';
+                
+                checkAchievements();
+                updateDisplay();
+                
+                showGameNotification('⭐ プレステージ成功！' + newPrestigePoints + 'ポイント獲得！', 'success');
+            } else {
+                showGameNotification('❌ プレステージには100万匹が必要です', 'error');
             }
         }
 
         // 実績チェック
         function checkAchievements() {
-            try {
-                if (!gameData.achievements.firstCat && gameData.totalCatsEver >= 1) {
-                    gameData.achievements.firstCat = true;
-                    showAchievement("初めての猫");
-                }
-                if (!gameData.achievements.hundredCats && gameData.totalCatsEver >= 100) {
-                    gameData.achievements.hundredCats = true;
-                    showAchievement("猫愛好家");
-                }
-                if (!gameData.achievements.thousandCats && gameData.totalCatsEver >= 1000) {
-                    gameData.achievements.thousandCats = true;
-                    showAchievement("猫コレクター");
-                }
-                if (!gameData.achievements.millionCats && gameData.totalCatsEver >= 1000000) {
-                    gameData.achievements.millionCats = true;
-                    showAchievement("猫帝国皇帝");
-                }
-                if (!gameData.achievements.hundredClicks && gameData.totalClicks >= 100) {
-                    gameData.achievements.hundredClicks = true;
-                    showAchievement("クリックマスター");
-                }
-                if (!gameData.achievements.firstPrestige && gameData.prestigePoints > 0) {
-                    gameData.achievements.firstPrestige = true;
-                    showAchievement("生まれ変わり");
-                }
-            } catch (error) {
-                console.error('❌ Error in checkAchievements:', error);
+            if (!gameData.achievements.firstCat && gameData.totalCatsEver >= 1) {
+                gameData.achievements.firstCat = true;
+                showAchievement("初めての猫");
+            }
+            if (!gameData.achievements.hundredCats && gameData.totalCatsEver >= 100) {
+                gameData.achievements.hundredCats = true;
+                showAchievement("猫愛好家");
+            }
+            if (!gameData.achievements.thousandCats && gameData.totalCatsEver >= 1000) {
+                gameData.achievements.thousandCats = true;
+                showAchievement("猫コレクター");
+            }
+            if (!gameData.achievements.millionCats && gameData.totalCatsEver >= 1000000) {
+                gameData.achievements.millionCats = true;
+                showAchievement("猫帝国皇帝");
+            }
+            if (!gameData.achievements.hundredClicks && gameData.totalClicks >= 100) {
+                gameData.achievements.hundredClicks = true;
+                showAchievement("クリックマスター");
+            }
+            if (!gameData.achievements.firstPrestige && gameData.prestigePoints > 0) {
+                gameData.achievements.firstPrestige = true;
+                showAchievement("生まれ変わり");
             }
         }
 
         // 実績表示
         function showAchievement(name) {
-            try {
-                console.log('🏆 Achievement unlocked:', name);
-                showGameNotification(`🏆 実績解除: ${name}`, 'success');
-            } catch (error) {
-                console.error('❌ Error in showAchievement:', error);
-            }
+            showGameNotification('🏆 実績解除: ' + name, 'success');
         }
 
         // 表示更新
         function updateDisplay() {
-            try {
-                const catCountElement = document.getElementById('catCount');
-                if (catCountElement) {
-                    const newCatCount = formatNumber(gameData.cats);
-                    if (catCountElement.textContent !== newCatCount) {
-                        catCountElement.textContent = newCatCount;
-                        catCountElement.style.transform = 'scale(1.05)';
-                        setTimeout(() => {
-                            catCountElement.style.transform = 'scale(1)';
-                        }, 100);
-                    }
+            const catCountElement = document.getElementById('catCount');
+            if (catCountElement) {
+                const newCatCount = formatNumber(gameData.cats);
+                if (catCountElement.textContent !== newCatCount) {
+                    catCountElement.textContent = newCatCount;
+                    catCountElement.style.transform = 'scale(1.05)';
+                    setTimeout(() => {
+                        catCountElement.style.transform = 'scale(1)';
+                    }, 100);
                 }
-                
-                const cpsElement = document.getElementById('catsPerSecond');
-                if (cpsElement) {
-                    cpsElement.textContent = getCatsPerSecond().toFixed(1);
-                }
-                
-                const clicksElement = document.getElementById('totalClicks');
-                if (clicksElement) {
-                    clicksElement.textContent = formatNumber(gameData.totalClicks);
-                }
-                
-                const prestigeElement = document.getElementById('prestigePoints');
-                if (prestigeElement) {
-                    prestigeElement.textContent = formatNumber(gameData.prestigePoints);
-                }
-                
-                const clickPowerElement = document.getElementById('clickPower');
-                if (clickPowerElement) {
-                    clickPowerElement.textContent = formatNumber(gameData.clickPower);
-                }
-                
-                const criticalRateElement = document.getElementById('criticalRate');
-                if (criticalRateElement) {
-                    const rate = gameData.randomEvents.criticalClickChance;
-                    criticalRateElement.textContent = (rate * 100).toFixed(1);
-                    
-                    if (rate >= 0.40) {
-                        criticalRateElement.style.color = '#FF1493';
-                    } else if (rate >= 0.25) {
-                        criticalRateElement.style.color = '#FF69B4';
-                    } else {
-                        criticalRateElement.style.color = '#FFD700';
-                    }
-                }
-                
-                updateUpgradesList();
-                updateAchievementsList();
-                updatePrestigeSection();
-                updateRandomStatus();
-                
-            } catch (error) {
-                console.error('❌ Error in updateDisplay:', error);
             }
+            
+            const cpsElement = document.getElementById('catsPerSecond');
+            if (cpsElement) {
+                cpsElement.textContent = getCatsPerSecond().toFixed(1);
+            }
+            
+            const clicksElement = document.getElementById('totalClicks');
+            if (clicksElement) {
+                clicksElement.textContent = formatNumber(gameData.totalClicks);
+            }
+            
+            const prestigeElement = document.getElementById('prestigePoints');
+            if (prestigeElement) {
+                prestigeElement.textContent = formatNumber(gameData.prestigePoints);
+            }
+            
+            const clickPowerElement = document.getElementById('clickPower');
+            if (clickPowerElement) {
+                clickPowerElement.textContent = formatNumber(gameData.clickPower);
+            }
+            
+            const criticalRateElement = document.getElementById('criticalRate');
+            if (criticalRateElement) {
+                const rate = gameData.randomEvents.criticalClickChance;
+                criticalRateElement.textContent = (rate * 100).toFixed(1);
+            }
+            
+            updateUpgradesList();
+            updateAchievementsList();
+            updatePrestigeSection();
+            updateRandomStatus();
         }
 
-        // アップグレードリスト更新（修正版）
+        // アップグレードリスト更新
         function updateUpgradesList() {
-            console.log('🔄 updateUpgradesList called');
-            
             const upgradesList = document.getElementById('upgradesList');
-            if (!upgradesList) {
-                console.error('❌ upgradesList element not found!');
-                return;
-            }
+            if (!upgradesList) return;
             
             upgradesList.innerHTML = '';
-            console.log('✅ Cleared upgrade list');
             
-            for (const [key, upgrade] of Object.entries(upgradeData)) {
+            for (const key in upgradeData) {
+                const upgrade = upgradeData[key];
                 const cost = getUpgradeCost(key);
                 const affordable = gameData.cats >= cost;
                 
                 const upgradeDiv = document.createElement('div');
-                upgradeDiv.className = `upgrade-item ${affordable ? 'affordable' : 'expensive'}`;
-                upgradeDiv.dataset.upgradeKey = key;
+                upgradeDiv.className = 'upgrade-item ' + (affordable ? 'affordable' : 'expensive');
                 
-                upgradeDiv.innerHTML = `
-                    <div class="upgrade-header">
-                        <span class="upgrade-name">${upgrade.name}</span>
-                        <span class="upgrade-count">${gameData.upgrades[key]}</span>
-                    </div>
-                    <div class="upgrade-description">${upgrade.description}</div>
-                    <div class="upgrade-cost" style="color: ${affordable ? '#32CD32' : '#FF6347'};">
-                        コスト: ${formatNumber(cost)} 猫 ${affordable ? '✅' : '❌'}
-                    </div>
-                    ${upgrade.production > 0 ? `<div style="font-size: 0.8rem; color: #666;">生産: ${formatNumber(upgrade.production)}/秒</div>` : ''}
-                    ${upgrade.clickBonus ? `<div style="font-size: 0.8rem; color: #666;">クリック力: +${upgrade.clickBonus}</div>` : ''}
-                    ${upgrade.autoClick ? `<div style="font-size: 0.8rem; color: #666;">自動クリック: ${upgrade.autoClick}/秒</div>` : ''}
-                `;
+                const upgradeHeader = document.createElement('div');
+                upgradeHeader.className = 'upgrade-header';
                 
-                // クリックイベントを個別に追加（確実に動作する）
-                upgradeDiv.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    console.log('Upgrade clicked:', key, 'Affordable:', affordable);
-                    if (affordable) {
-                        buyUpgrade(key);
-                    } else {
-                        showInsufficientFunds();
-                    }
-                });
+                const upgradeName = document.createElement('span');
+                upgradeName.className = 'upgrade-name';
+                upgradeName.textContent = upgrade.name;
+                
+                const upgradeCount = document.createElement('span');
+                upgradeCount.className = 'upgrade-count';
+                upgradeCount.textContent = gameData.upgrades[key];
+                
+                upgradeHeader.appendChild(upgradeName);
+                upgradeHeader.appendChild(upgradeCount);
+                
+                const upgradeDescription = document.createElement('div');
+                upgradeDescription.className = 'upgrade-description';
+                upgradeDescription.textContent = upgrade.description;
+                
+                const upgradeCost = document.createElement('div');
+                upgradeCost.className = 'upgrade-cost';
+                upgradeCost.style.color = affordable ? '#32CD32' : '#FF6347';
+                upgradeCost.textContent = 'コスト: ' + formatNumber(cost) + ' 猫 ' + (affordable ? '✅' : '❌');
+                
+                upgradeDiv.appendChild(upgradeHeader);
+                upgradeDiv.appendChild(upgradeDescription);
+                upgradeDiv.appendChild(upgradeCost);
+                
+                if (upgrade.production > 0) {
+                    const productionInfo = document.createElement('div');
+                    productionInfo.style.fontSize = '0.8rem';
+                    productionInfo.style.color = '#666';
+                    productionInfo.textContent = '生産: ' + formatNumber(upgrade.production) + '/秒';
+                    upgradeDiv.appendChild(productionInfo);
+                }
+                
+                if (upgrade.clickBonus) {
+                    const clickInfo = document.createElement('div');
+                    clickInfo.style.fontSize = '0.8rem';
+                    clickInfo.style.color = '#666';
+                    clickInfo.textContent = 'クリック力: +' + upgrade.clickBonus;
+                    upgradeDiv.appendChild(clickInfo);
+                }
+                
+                if (upgrade.autoClick) {
+                    const autoInfo = document.createElement('div');
+                    autoInfo.style.fontSize = '0.8rem';
+                    autoInfo.style.color = '#666';
+                    autoInfo.textContent = '自動クリック: ' + upgrade.autoClick + '/秒';
+                    upgradeDiv.appendChild(autoInfo);
+                }
+                
+                upgradeDiv.addEventListener('click', (function(upgradeKey) {
+                    return function() {
+                        if (gameData.cats >= getUpgradeCost(upgradeKey)) {
+                            buyUpgrade(upgradeKey);
+                        } else {
+                            showInsufficientFunds();
+                        }
+                    };
+                })(key));
                 
                 upgradesList.appendChild(upgradeDiv);
             }
-            
-            console.log('✅ updateUpgradesList completed');
         }
 
         // 実績リスト更新
         function updateAchievementsList() {
-            try {
-                const achievementsList = document.getElementById('achievementsList');
-                if (!achievementsList) {
-                    console.error('❌ achievementsList element not found!');
-                    return;
-                }
+            const achievementsList = document.getElementById('achievementsList');
+            if (!achievementsList) return;
+            
+            achievementsList.innerHTML = '';
+            
+            for (const key in achievementData) {
+                const achievement = achievementData[key];
+                const unlocked = gameData.achievements[key];
                 
-                achievementsList.innerHTML = '';
+                const achievementDiv = document.createElement('div');
+                achievementDiv.className = 'achievement' + (unlocked ? ' unlocked' : '');
                 
-                for (const [key, achievement] of Object.entries(achievementData)) {
-                    const unlocked = gameData.achievements[key];
-                    
-                    const achievementDiv = document.createElement('div');
-                    achievementDiv.className = `achievement ${unlocked ? 'unlocked' : ''}`;
-                    achievementDiv.innerHTML = `
-                        <span style="margin-right: 10px;">${achievement.icon}</span>
-                        <div>
-                            <strong>${achievement.name}</strong>
-                            <div style="font-size: 0.8rem; color: #666;">${achievement.description}</div>
-                        </div>
-                    `;
-                    
-                    achievementsList.appendChild(achievementDiv);
-                }
+                const icon = document.createElement('span');
+                icon.style.marginRight = '10px';
+                icon.textContent = achievement.icon;
                 
-                console.log('✅ updateAchievementsList completed');
-            } catch (error) {
-                console.error('❌ Error in updateAchievementsList:', error);
+                const content = document.createElement('div');
+                
+                const title = document.createElement('strong');
+                title.textContent = achievement.name;
+                
+                const description = document.createElement('div');
+                description.style.fontSize = '0.8rem';
+                description.style.color = '#666';
+                description.textContent = achievement.description;
+                
+                content.appendChild(title);
+                content.appendChild(description);
+                
+                achievementDiv.appendChild(icon);
+                achievementDiv.appendChild(content);
+                
+                achievementsList.appendChild(achievementDiv);
             }
         }
 
-        // プレステージセクション更新（修正版）
+        // プレステージセクション更新
         function updatePrestigeSection() {
-            try {
-                const prestigeSection = document.getElementById('prestigeSection');
-                if (!prestigeSection) {
-                    console.warn('⚠️ prestigeSection element not found');
-                    return;
+            const prestigeSection = document.getElementById('prestigeSection');
+            if (!prestigeSection) return;
+            
+            const canPrestige = gameData.totalCatsEver >= 1000000;
+            
+            if (canPrestige) {
+                prestigeSection.style.display = 'block';
+                const prestigeGain = Math.floor(Math.sqrt(gameData.totalCatsEver / 1000000));
+                
+                const prestigeGainElement = document.getElementById('prestigeGain');
+                const prestigeBonusElement = document.getElementById('prestigeBonus');
+                
+                if (prestigeGainElement) {
+                    prestigeGainElement.textContent = prestigeGain;
                 }
-                
-                const canPrestige = gameData.totalCatsEver >= 1000000;
-                
-                if (canPrestige) {
-                    prestigeSection.style.display = 'block';
-                    const prestigeGain = Math.floor(Math.sqrt(gameData.totalCatsEver / 1000000));
-                    
-                    const prestigeGainElement = document.getElementById('prestigeGain');
-                    const prestigeBonusElement = document.getElementById('prestigeBonus');
-                    
-                    if (prestigeGainElement) {
-                        prestigeGainElement.textContent = prestigeGain;
-                    }
-                    if (prestigeBonusElement) {
-                        prestigeBonusElement.textContent = (gameData.prestigePoints * 10).toFixed(0);
-                    }
-                    
-                    // プレステージボタンのイベントリスナーを設定
-                    const prestigeBtn = document.getElementById('prestigeBtn');
-                    if (prestigeBtn && !prestigeBtn.hasAttribute('data-listener-attached')) {
-                        prestigeBtn.addEventListener('click', prestige);
-                        prestigeBtn.setAttribute('data-listener-attached', 'true');
-                    }
-                } else {
-                    prestigeSection.style.display = 'none';
+                if (prestigeBonusElement) {
+                    prestigeBonusElement.textContent = (gameData.prestigePoints * 10).toFixed(0);
                 }
-                
-                console.log('✅ updatePrestigeSection completed, can prestige:', canPrestige);
-            } catch (error) {
-                console.error('❌ Error in updatePrestigeSection:', error);
+            } else {
+                prestigeSection.style.display = 'none';
             }
         }
 
         // オフライン進行計算
         function calculateOfflineProgress() {
-            try {
-                const now = Date.now();
-                const timeDiff = (now - gameData.lastSave) / 1000;
+            const now = Date.now();
+            const timeDiff = (now - gameData.lastSave) / 1000;
+            
+            if (timeDiff > 60) {
+                const offlineCats = getCatsPerSecond() * Math.min(timeDiff, 86400);
+                gameData.cats += offlineCats;
+                gameData.totalCatsEver += offlineCats;
                 
-                console.log('⏰ Offline check: time diff =', timeDiff, 'seconds');
+                const hours = Math.floor(timeDiff / 3600);
+                const minutes = Math.floor((timeDiff % 3600) / 60);
                 
-                if (timeDiff > 60) {
-                    const offlineCats = getCatsPerSecond() * Math.min(timeDiff, 86400);
-                    gameData.cats += offlineCats;
-                    gameData.totalCatsEver += offlineCats;
-                    
-                    const hours = Math.floor(timeDiff / 3600);
-                    const minutes = Math.floor((timeDiff % 3600) / 60);
-                    
-                    console.log('💤 Offline progress: gained', offlineCats, 'cats');
-                    
-                    const offlineElement = document.getElementById('offlineProgress');
-                    const offlineTextElement = document.getElementById('offlineText');
-                    
-                    if (offlineElement && offlineTextElement) {
-                        offlineElement.style.display = 'block';
-                        offlineTextElement.innerHTML = `
-                            離れていた時間: ${hours}時間 ${minutes}分<br>
-                            獲得した猫: ${formatNumber(offlineCats)} 匹
-                        `;
-                    }
-                    
-                    showGameNotification(`💤 オフライン進行: ${formatNumber(offlineCats)} 匹の猫を獲得！`, 'success');
+                const offlineElement = document.getElementById('offlineProgress');
+                const offlineTextElement = document.getElementById('offlineText');
+                
+                if (offlineElement && offlineTextElement) {
+                    offlineElement.style.display = 'block';
+                    offlineTextElement.innerHTML = '離れていた時間: ' + hours + '時間 ' + minutes + '分<br>獲得した猫: ' + formatNumber(offlineCats) + ' 匹';
                 }
                 
-                gameData.lastSave = now;
-            } catch (error) {
-                console.error('❌ Error in calculateOfflineProgress:', error);
+                showGameNotification('💤 オフライン進行: ' + formatNumber(offlineCats) + ' 匹の猫を獲得！', 'success');
             }
+            
+            gameData.lastSave = now;
         }
 
         function closeOfflineModal() {
-            try {
-                const offlineElement = document.getElementById('offlineProgress');
-                if (offlineElement) {
-                    offlineElement.style.display = 'none';
-                }
-            } catch (error) {
-                console.error('❌ Error in closeOfflineModal:', error);
+            const offlineElement = document.getElementById('offlineProgress');
+            if (offlineElement) {
+                offlineElement.style.display = 'none';
             }
         }
 
@@ -1397,11 +1292,10 @@
         function saveGame() {
             try {
                 gameData.lastSave = Date.now();
-                localStorage.setItem('catCafeGame', JSON.stringify(gameData));
-                console.log('💾 Game saved successfully');
+                const saveData = JSON.stringify(gameData);
+                localStorage.setItem('catCafeGame', saveData);
                 showGameNotification('💾 ゲームを保存しました！', 'success');
             } catch (error) {
-                console.error('❌ Error saving game:', error);
                 showGameNotification('❌ セーブに失敗しました', 'error');
             }
         }
@@ -1411,7 +1305,11 @@
                 const saved = localStorage.getItem('catCafeGame');
                 if (saved) {
                     const parsedData = JSON.parse(saved);
-                    gameData = { ...gameData, ...parsedData };
+                    for (const key in parsedData) {
+                        if (gameData.hasOwnProperty(key)) {
+                            gameData[key] = parsedData[key];
+                        }
+                    }
                     
                     if (!gameData.randomEvents) {
                         gameData.randomEvents = {
@@ -1426,247 +1324,31 @@
                         };
                     }
                     
-                    if (gameData.randomEvents.criticalClickChance === 0.05) {
-                        gameData.randomEvents.criticalClickChance = 0.20;
-                        console.log('🔧 Updated old save: critical chance 5% → 20%');
-                    }
-                    
-                    if (!gameData.achievements.firstGoldenCat) gameData.achievements.firstGoldenCat = false;
-                    if (!gameData.achievements.firstTreasure) gameData.achievements.firstTreasure = false;
-                    if (!gameData.achievements.luckyStreak) gameData.achievements.luckyStreak = false;
-                    
-                    console.log('📂 Game loaded from localStorage');
                     calculateOfflineProgress();
-                } else {
-                    console.log('📂 No saved game found, starting fresh');
                 }
             } catch (error) {
-                console.error('❌ Error loading game:', error);
                 showGameNotification('❌ セーブデータの読み込みに失敗しました', 'error');
             }
         }
 
         function resetGame() {
-            console.log('🔄 Reset game button clicked');
-            showResetConfirmation();
-        }
-
-        // カスタム確認ダイアログ
-        function showResetConfirmation() {
-            console.log('⚠️ Showing reset confirmation dialog');
-            
-            try {
-                const modal = document.createElement('div');
-                modal.style.cssText = `
-                    position: fixed;
-                    top: 0;
-                    left: 0;
-                    width: 100%;
-                    height: 100%;
-                    background: rgba(0,0,0,0.8);
-                    z-index: 20000;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                `;
-                
-                const dialog = document.createElement('div');
-                dialog.style.cssText = `
-                    background: white;
-                    padding: 30px;
-                    border-radius: 15px;
-                    text-align: center;
-                    max-width: 400px;
-                    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-                `;
-                
-                dialog.innerHTML = `
-                    <h3 style="color: #FF1493; margin-bottom: 20px;">⚠️ ゲームリセット</h3>
-                    <p style="margin-bottom: 30px; color: #666;">本当にゲームをリセットしますか？<br>すべての進行状況が失われます。</p>
-                    <button id="confirmReset" style="background: #FF6347; color: white; border: none; padding: 15px 25px; border-radius: 8px; margin-right: 15px; cursor: pointer; font-weight: bold;">リセット実行</button>
-                    <button id="cancelReset" style="background: #666; color: white; border: none; padding: 15px 25px; border-radius: 8px; cursor: pointer; font-weight: bold;">キャンセル</button>
-                `;
-                
-                modal.appendChild(dialog);
-                document.body.appendChild(modal);
-                
-                console.log('✅ Reset dialog created and added to DOM');
-                
-                const confirmBtn = document.getElementById('confirmReset');
-                confirmBtn.addEventListener('click', function() {
-                    console.log('🔄 Reset confirmed by user');
-                    executeReset();
-                    document.body.removeChild(modal);
-                });
-                
-                const cancelBtn = document.getElementById('cancelReset');
-                cancelBtn.addEventListener('click', function() {
-                    console.log('❌ Reset cancelled by user');
-                    document.body.removeChild(modal);
-                });
-                
-                modal.addEventListener('click', function(e) {
-                    if (e.target === modal) {
-                        console.log('❌ Reset cancelled by clicking outside');
-                        document.body.removeChild(modal);
-                    }
-                });
-                
-                console.log('✅ Reset dialog event listeners attached');
-                
-            } catch (error) {
-                console.error('❌ Error creating reset dialog:', error);
-                if (window.confirm && window.confirm('本当にゲームをリセットしますか？')) {
-                    executeReset();
-                }
-            }
-        }
-
-        // 実際のリセット処理
-        function executeReset() {
-            console.log('🔥 Executing game reset...');
-            
-            try {
+            if (confirm('本当にゲームをリセットしますか？すべての進行状況が失われます。')) {
                 localStorage.removeItem('catCafeGame');
-                console.log('✅ LocalStorage cleared');
-                
-                gameData = {
-                    cats: 0,
-                    totalClicks: 0,
-                    clickPower: 1,
-                    prestigePoints: 0,
-                    totalCatsEver: 0,
-                    lastSave: Date.now(),
-                    upgrades: {
-                        catnip: 0,
-                        catToy: 0,
-                        catCafe: 0,
-                        catHotel: 0,
-                        catPark: 0,
-                        catCity: 0,
-                        catPlanet: 0,
-                        catUniverse: 0,
-                        clickUpgrade: 0,
-                        autoClicker: 0
-                    },
-                    achievements: {
-                        firstCat: false,
-                        hundredCats: false,
-                        thousandCats: false,
-                        millionCats: false,
-                        firstUpgrade: false,
-                        hundredClicks: false,
-                        firstPrestige: false,
-                        firstGoldenCat: false,
-                        firstTreasure: false,
-                        luckyStreak: false
-                    },
-                    randomEvents: {
-                        goldenCatActive: false,
-                        goldenCatTimer: 0,
-                        treasureBoxActive: false,
-                        treasureBoxTimer: 0,
-                        lastEventTime: 0,
-                        luckyStreakCount: 0,
-                        criticalClickChance: 0.20,
-                        consecutiveCriticals: 0
-                    }
-                };
-                
-                console.log('✅ Game data reset to initial state');
-                
-                const goldenCat = document.getElementById('goldenCat');
-                const treasureBox = document.getElementById('treasureBox');
-                if (goldenCat) goldenCat.style.display = 'none';
-                if (treasureBox) treasureBox.style.display = 'none';
-                
-                updateDisplay();
-                console.log('✅ Display updated after reset');
-                
-                showGameNotification('🔄 ゲームがリセットされました！新しい猫帝国を築きましょう！', 'success');
-                console.log('🎉 Game reset completed successfully');
-                
-            } catch (error) {
-                console.error('❌ Error during reset execution:', error);
-                showGameNotification('❌ リセット中にエラーが発生しました', 'error');
-                
-                try {
-                    console.log('🔄 Attempting page reload as fallback...');
-                    window.location.reload();
-                } catch (reloadError) {
-                    console.error('❌ Page reload also failed:', reloadError);
-                }
+                location.reload();
             }
         }
 
         function importSave() {
-            showImportDialog();
-        }
-
-        // カスタム入力ダイアログ
-        function showImportDialog() {
-            const modal = document.createElement('div');
-            modal.style.cssText = `
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background: rgba(0,0,0,0.8);
-                z-index: 20000;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-            `;
-            
-            const dialog = document.createElement('div');
-            dialog.style.cssText = `
-                background: white;
-                padding: 30px;
-                border-radius: 15px;
-                text-align: center;
-                max-width: 500px;
-                box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-            `;
-            
-            dialog.innerHTML = `
-                <h3 style="color: #FF1493; margin-bottom: 20px;">📥 セーブデータ読み込み</h3>
-                <p style="margin-bottom: 15px; color: #666;">セーブデータを貼り付けてください：</p>
-                <textarea id="saveDataInput" style="width: 100%; height: 100px; border: 2px solid #ccc; border-radius: 5px; padding: 10px; margin-bottom: 20px; resize: vertical;"></textarea>
-                <div>
-                    <button id="confirmImport" style="background: #32CD32; color: white; border: none; padding: 10px 20px; border-radius: 5px; margin-right: 10px; cursor: pointer;">読み込み</button>
-                    <button id="cancelImport" style="background: #666; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">キャンセル</button>
-                </div>
-            `;
-            
-            modal.appendChild(dialog);
-            document.body.appendChild(modal);
-            
-            document.getElementById('confirmImport').addEventListener('click', function() {
-                const saveData = document.getElementById('saveDataInput').value.trim();
-                if (saveData) {
-                    try {
-                        gameData = JSON.parse(atob(saveData));
-                        updateDisplay();
-                        showGameNotification('📥 セーブデータを読み込みました！', 'success');
-                        document.body.removeChild(modal);
-                    } catch (e) {
-                        showGameNotification('❌ 無効なセーブデータです。', 'error');
-                    }
-                } else {
-                    showGameNotification('⚠️ セーブデータが入力されていません。', 'warning');
+            const saveData = prompt('セーブデータを貼り付けてください：');
+            if (saveData) {
+                try {
+                    gameData = JSON.parse(atob(saveData));
+                    updateDisplay();
+                    showGameNotification('📥 セーブデータを読み込みました！', 'success');
+                } catch (e) {
+                    showGameNotification('❌ 無効なセーブデータです。', 'error');
                 }
-            });
-            
-            document.getElementById('cancelImport').addEventListener('click', function() {
-                document.body.removeChild(modal);
-            });
-            
-            modal.addEventListener('click', function(e) {
-                if (e.target === modal) {
-                    document.body.removeChild(modal);
-                }
-            });
+            }
         }
 
         function exportSave() {
@@ -1676,70 +1358,16 @@
                 navigator.clipboard.writeText(saveData).then(() => {
                     showGameNotification('📤 セーブデータをクリップボードにコピーしました！', 'success');
                 }).catch(() => {
-                    showExportDialog(saveData);
+                    prompt('セーブデータをコピーしてください：', saveData);
                 });
             } else {
-                showExportDialog(saveData);
+                prompt('セーブデータをコピーしてください：', saveData);
             }
         }
 
-        // エクスポートダイアログ表示
-        function showExportDialog(saveData) {
-            const modal = document.createElement('div');
-            modal.style.cssText = `
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background: rgba(0,0,0,0.8);
-                z-index: 20000;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-            `;
-            
-            const dialog = document.createElement('div');
-            dialog.style.cssText = `
-                background: white;
-                padding: 30px;
-                border-radius: 15px;
-                text-align: center;
-                max-width: 500px;
-                box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-            `;
-            
-            dialog.innerHTML = `
-                <h3 style="color: #FF1493; margin-bottom: 20px;">📤 セーブデータエクスポート</h3>
-                <p style="margin-bottom: 15px; color: #666;">以下のデータをコピーして保存してください：</p>
-                <textarea readonly style="width: 100%; height: 100px; border: 2px solid #ccc; border-radius: 5px; padding: 10px; margin-bottom: 20px; resize: vertical; font-family: monospace; font-size: 12px;">${saveData}</textarea>
-                <div>
-                    <button id="closeExport" style="background: #666; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">閉じる</button>
-                </div>
-            `;
-            
-            modal.appendChild(dialog);
-            document.body.appendChild(modal);
-            
-            const textarea = dialog.querySelector('textarea');
-            textarea.select();
-            textarea.setSelectionRange(0, 99999);
-            
-            document.getElementById('closeExport').addEventListener('click', function() {
-                document.body.removeChild(modal);
-            });
-            
-            modal.addEventListener('click', function(e) {
-                if (e.target === modal) {
-                    document.body.removeChild(modal);
-                }
-            });
-            
-            showGameNotification('📤 セーブデータを表示しました。手動でコピーしてください。', 'warning');
-        }
-
         // 汎用通知システム
-        function showGameNotification(message, type = 'info') {
+        function showGameNotification(message, type) {
+            type = type || 'info';
             const notification = document.createElement('div');
             
             let backgroundColor;
@@ -1757,21 +1385,7 @@
                     backgroundColor = 'linear-gradient(135deg, #32CD32, #228B22)';
             }
             
-            notification.style.cssText = `
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                background: ${backgroundColor};
-                color: white;
-                padding: 15px 20px;
-                border-radius: 10px;
-                z-index: 10000;
-                font-weight: bold;
-                box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-                animation: slideInRight 0.5s ease-out;
-                max-width: 300px;
-                word-wrap: break-word;
-            `;
+            notification.style.cssText = 'position: fixed; top: 20px; right: 20px; background: ' + backgroundColor + '; color: white; padding: 15px 20px; border-radius: 10px; z-index: 10000; font-weight: bold; box-shadow: 0 4px 15px rgba(0,0,0,0.3); animation: slideInRight 0.5s ease-out; max-width: 300px; word-wrap: break-word;';
             notification.innerHTML = message;
             document.body.appendChild(notification);
             
@@ -1784,127 +1398,121 @@
 
         // ゲームループ
         function gameLoop() {
-            try {
-                const cps = getCatsPerSecond();
-                const increment = cps / 20;
-                gameData.cats += increment;
-                gameData.totalCatsEver += increment;
-                
-                updateDisplay();
-                
-                if (Math.random() < 0.001) {
-                    checkRandomEvents();
-                }
-                
-            } catch (error) {
-                console.error('❌ Error in game loop:', error);
+            const cps = getCatsPerSecond();
+            const increment = cps / 20;
+            gameData.cats += increment;
+            gameData.totalCatsEver += increment;
+            
+            updateDisplay();
+            
+            if (Math.random() < 0.001) {
+                checkRandomEvents();
             }
         }
 
         // 初期化
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('🎮 DOM loaded, initializing game...');
-            
             // Service Workerの登録（PWA対応）
             if ('serviceWorker' in navigator) {
-                window.addEventListener('load', function() {
-                    navigator.serviceWorker.register('./service-worker.js')
-                        .then(function(registration) {
-                            console.log('✅ ServiceWorker registration successful:', registration.scope);
-                        })
-                        .catch(function(err) {
-                            console.log('❌ ServiceWorker registration failed:', err);
-                        });
-                });
+                const swCode = `
+                    const CACHE_NAME = 'cat-cafe-v1';
+                    const urlsToCache = ['./'];
+                    
+                    self.addEventListener('install', event => {
+                        event.waitUntil(
+                            caches.open(CACHE_NAME)
+                                .then(cache => cache.addAll(urlsToCache))
+                        );
+                    });
+                    
+                    self.addEventListener('fetch', event => {
+                        event.respondWith(
+                            caches.match(event.request)
+                                .then(response => {
+                                    if (response) {
+                                        return response;
+                                    }
+                                    return fetch(event.request);
+                                }
+                            )
+                        );
+                    });
+                `;
+                
+                const blob = new Blob([swCode], {type: 'application/javascript'});
+                const swUrl = URL.createObjectURL(blob);
+                
+                navigator.serviceWorker.register(swUrl)
+                    .then(registration => {
+                        console.log('✅ ServiceWorker registration successful');
+                        URL.revokeObjectURL(swUrl);
+                    })
+                    .catch(err => {
+                        console.log('❌ ServiceWorker registration failed:', err);
+                        URL.revokeObjectURL(swUrl);
+                    });
             }
             
-            try {
-                const requiredElements = [
-                    'catCount', 'catsPerSecond', 'totalClicks', 'prestigePoints', 'clickPower',
-                    'upgradesList', 'achievementsList', 'catButton'
-                ];
+            loadGame();
+            updateDisplay();
+            
+            // イベントリスナーの設定
+            document.getElementById('catButton').addEventListener('click', clickCat);
+            document.getElementById('saveBtn').addEventListener('click', saveGame);
+            document.getElementById('resetBtn').addEventListener('click', resetGame);
+            document.getElementById('exportBtn').addEventListener('click', exportSave);
+            document.getElementById('importBtn').addEventListener('click', importSave);
+            document.getElementById('closeOfflineBtn').addEventListener('click', closeOfflineModal);
+            document.getElementById('goldenCat').addEventListener('click', clickGoldenCat);
+            document.getElementById('treasureBox').addEventListener('click', openTreasureBox);
+            document.getElementById('prestigeBtn').addEventListener('click', prestige);
+            
+            // ゲームループ開始
+            setInterval(gameLoop, 50);
+            
+            // オートセーブ
+            setInterval(saveGame, 30000);
+            
+            // ページ離脱時セーブ
+            window.addEventListener('beforeunload', saveGame);
+            
+            showGameNotification('🎮 猫カフェ帝国へようこそ！', 'success');
+            
+            // PWAインストール促進
+            let deferredPrompt;
+            window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                deferredPrompt = e;
                 
-                let missingElements = [];
-                for (const elementId of requiredElements) {
-                    if (!document.getElementById(elementId)) {
-                        missingElements.push(elementId);
-                    }
-                }
-                
-                if (missingElements.length > 0) {
-                    console.error('❌ Missing DOM elements:', missingElements);
-                    return;
-                }
-                
-                console.log('✅ All required DOM elements found');
-                
-                // イベントリスナーの設定
-                const catButton = document.getElementById('catButton');
-                if (catButton) {
-                    catButton.addEventListener('click', function(event) {
-                        console.log('🎯 Cat button clicked with event:', event.type);
-                        clickCat(event);
-                    });
-                    console.log('✅ Cat button event listener attached');
-                } else {
-                    console.error('❌ Cat button not found!');
-                }
-                
-                // コントロールボタンのイベントリスナー（エラーハンドリング付き）
-                const addButtonListener = (id, handler) => {
-                    const element = document.getElementById(id);
-                    if (element) {
-                        element.addEventListener('click', handler);
-                        console.log(`✅ Event listener attached to ${id}`);
-                    } else {
-                        console.warn(`⚠️ Element ${id} not found`);
-                    }
-                };
-                
-                addButtonListener('saveBtn', saveGame);
-                addButtonListener('resetBtn', resetGame);
-                addButtonListener('exportBtn', exportSave);
-                addButtonListener('importBtn', importSave);
-                addButtonListener('closeOfflineBtn', closeOfflineModal);
-                addButtonListener('goldenCat', clickGoldenCat);
-                addButtonListener('treasureBox', openTreasureBox);
-                
-                console.log('📂 Loading saved game...');
-                loadGame();
-                console.log('✅ Game loaded successfully');
-                
-                console.log('🔄 Updating display...');
-                updateDisplay();
-                console.log('✅ Display updated');
-                
-                console.log('🔧 Starting game loop...');
-                const gameLoopInterval = setInterval(gameLoop, 50);
-                console.log('✅ Game loop started');
-                
-                console.log('💾 Setting up auto-save...');
-                const autoSaveInterval = setInterval(saveGame, 30000);
-                console.log('✅ Auto-save configured');
-                
-                window.addEventListener('beforeunload', function() {
-                    console.log('💾 Saving before page unload...');
-                    saveGame();
-                });
-                
-                console.log('🎉 Game initialized successfully!');
                 setTimeout(() => {
-                    showGameNotification('🎮 猫カフェ帝国へようこそ！', 'success');
-                }, 500);
-                
-            } catch (error) {
-                console.error('❌ Error during initialization:', error);
-                try {
-                    updateDisplay();
-                    setInterval(gameLoop, 50);
-                    showGameNotification('⚠️ 一部機能でエラーが発生しましたが、ゲームは開始されました', 'warning');
-                } catch (fallbackError) {
-                    console.error('❌ Fallback initialization also failed:', fallbackError);
-                }
-            }
+                    if (deferredPrompt) {
+                        const installNotification = document.createElement('div');
+                        installNotification.style.cssText = 'position: fixed; bottom: 20px; left: 20px; right: 20px; background: linear-gradient(135deg, #FF69B4, #FF1493); color: white; padding: 15px; border-radius: 10px; z-index: 10000; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.3);';
+                        installNotification.innerHTML = `
+                            <div style="margin-bottom: 10px;">📱 アプリとしてインストールできます！</div>
+                            <button id="installBtn" style="background: white; color: #FF1493; border: none; padding: 8px 16px; border-radius: 5px; margin-right: 10px; cursor: pointer; font-weight: bold;">インストール</button>
+                            <button id="dismissBtn" style="background: rgba(255,255,255,0.2); color: white; border: none; padding: 8px 16px; border-radius: 5px; cursor: pointer;">後で</button>
+                        `;
+                        document.body.appendChild(installNotification);
+                        
+                        document.getElementById('installBtn').addEventListener('click', () => {
+                            deferredPrompt.prompt();
+                            deferredPrompt.userChoice.then((choiceResult) => {
+                                if (choiceResult.outcome === 'accepted') {
+                                    showGameNotification('📱 インストールありがとうございます！', 'success');
+                                }
+                                deferredPrompt = null;
+                                document.body.removeChild(installNotification);
+                            });
+                        });
+                        
+                        document.getElementById('dismissBtn').addEventListener('click', () => {
+                            document.body.removeChild(installNotification);
+                            deferredPrompt = null;
+                        });
+                    }
+                }, 5000);
+            });
         });
     </script>
 </body>
