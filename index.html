@@ -14,6 +14,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="猫カフェ帝国">
     <link rel="apple-touch-icon" href="icon-192.png">
+    <link rel="icon" href="data:,">
     
     <!-- SEO・OGP設定 -->
     <meta name="description" content="クリックして猫を集めよう！放置して帝国を築こう！かわいい猫たちと一緒に最強の猫帝国を作り上げる放置系クリッカーゲーム">
@@ -288,6 +289,7 @@
             margin-bottom: 10px;
             cursor: pointer;
             transition: all 0.3s ease;
+            user-select: none;
         }
 
         .upgrade-item:hover {
@@ -301,9 +303,18 @@
             background: rgba(50, 205, 50, 0.1);
         }
 
+        .upgrade-item.affordable:hover {
+            background: rgba(50, 205, 50, 0.2);
+        }
+
         .upgrade-item.expensive {
             opacity: 0.6;
             cursor: not-allowed;
+        }
+
+        .upgrade-item.expensive:hover {
+            transform: none;
+            background: rgba(255, 182, 193, 0.2);
         }
 
         .upgrade-header {
@@ -930,6 +941,11 @@
             
             try {
                 const upgrade = upgradeData[upgradeKey];
+                if (!upgrade) {
+                    console.error('Upgrade not found:', upgradeKey);
+                    return;
+                }
+                
                 const cost = getUpgradeCost(upgradeKey);
                 
                 console.log('Current cats:', gameData.cats, 'Cost:', cost);
@@ -944,6 +960,12 @@
                     
                     if (upgradeKey === 'clickUpgrade') {
                         gameData.clickPower += upgrade.clickBonus;
+                    }
+                    
+                    // 初回アップグレード実績チェック
+                    if (!gameData.achievements.firstUpgrade) {
+                        gameData.achievements.firstUpgrade = true;
+                        showAchievement("始まりの一歩");
                     }
                     
                     checkAchievements();
@@ -1113,10 +1135,6 @@
                     gameData.achievements.millionCats = true;
                     showAchievement("猫帝国皇帝");
                 }
-                if (!gameData.achievements.firstUpgrade && Object.values(gameData.upgrades).some(v => v > 0)) {
-                    gameData.achievements.firstUpgrade = true;
-                    showAchievement("始まりの一歩");
-                }
                 if (!gameData.achievements.hundredClicks && gameData.totalClicks >= 100) {
                     gameData.achievements.hundredClicks = true;
                     showAchievement("クリックマスター");
@@ -1199,7 +1217,7 @@
             }
         }
 
-        // アップグレードリスト更新
+        // アップグレードリスト更新（修正版）
         function updateUpgradesList() {
             console.log('🔄 updateUpgradesList called');
             
@@ -1216,19 +1234,9 @@
                 const cost = getUpgradeCost(key);
                 const affordable = gameData.cats >= cost;
                 
-                console.log(`📊 Upgrade ${key}: cost=${cost}, affordable=${affordable}, cats=${gameData.cats}`);
-                
                 const upgradeDiv = document.createElement('div');
                 upgradeDiv.className = `upgrade-item ${affordable ? 'affordable' : 'expensive'}`;
                 upgradeDiv.dataset.upgradeKey = key;
-                
-                if (affordable) {
-                    upgradeDiv.style.cursor = 'pointer';
-                    upgradeDiv.style.opacity = '1';
-                } else {
-                    upgradeDiv.style.cursor = 'not-allowed';
-                    upgradeDiv.style.opacity = '0.6';
-                }
                 
                 upgradeDiv.innerHTML = `
                     <div class="upgrade-header">
@@ -1243,6 +1251,18 @@
                     ${upgrade.clickBonus ? `<div style="font-size: 0.8rem; color: #666;">クリック力: +${upgrade.clickBonus}</div>` : ''}
                     ${upgrade.autoClick ? `<div style="font-size: 0.8rem; color: #666;">自動クリック: ${upgrade.autoClick}/秒</div>` : ''}
                 `;
+                
+                // クリックイベントを個別に追加（確実に動作する）
+                upgradeDiv.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('Upgrade clicked:', key, 'Affordable:', affordable);
+                    if (affordable) {
+                        buyUpgrade(key);
+                    } else {
+                        showInsufficientFunds();
+                    }
+                });
                 
                 upgradesList.appendChild(upgradeDiv);
             }
@@ -1283,7 +1303,7 @@
             }
         }
 
-        // プレステージセクション更新
+        // プレステージセクション更新（修正版）
         function updatePrestigeSection() {
             try {
                 const prestigeSection = document.getElementById('prestigeSection');
@@ -1306,6 +1326,13 @@
                     }
                     if (prestigeBonusElement) {
                         prestigeBonusElement.textContent = (gameData.prestigePoints * 10).toFixed(0);
+                    }
+                    
+                    // プレステージボタンのイベントリスナーを設定
+                    const prestigeBtn = document.getElementById('prestigeBtn');
+                    if (prestigeBtn && !prestigeBtn.hasAttribute('data-listener-attached')) {
+                        prestigeBtn.addEventListener('click', prestige);
+                        prestigeBtn.setAttribute('data-listener-attached', 'true');
                     }
                 } else {
                     prestigeSection.style.display = 'none';
@@ -1823,28 +1850,24 @@
                     console.error('❌ Cat button not found!');
                 }
                 
-                // コントロールボタンのイベントリスナー
-                document.getElementById('saveBtn').addEventListener('click', saveGame);
-                document.getElementById('resetBtn').addEventListener('click', resetGame);
-                document.getElementById('exportBtn').addEventListener('click', exportSave);
-                document.getElementById('importBtn').addEventListener('click', importSave);
-                document.getElementById('closeOfflineBtn').addEventListener('click', closeOfflineModal);
-                document.getElementById('prestigeBtn').addEventListener('click', prestige);
-                
-                // ゴールデン猫と宝箱のイベントリスナー
-                document.getElementById('goldenCat').addEventListener('click', clickGoldenCat);
-                document.getElementById('treasureBox').addEventListener('click', openTreasureBox);
-                
-                // アップグレードのクリックイベント（イベントデリゲーション）
-                document.getElementById('upgradesList').addEventListener('click', function(event) {
-                    const upgradeItem = event.target.closest('.upgrade-item');
-                    if (upgradeItem && upgradeItem.classList.contains('affordable')) {
-                        const upgradeKey = upgradeItem.dataset.upgradeKey;
-                        if (upgradeKey) {
-                            buyUpgrade(upgradeKey);
-                        }
+                // コントロールボタンのイベントリスナー（エラーハンドリング付き）
+                const addButtonListener = (id, handler) => {
+                    const element = document.getElementById(id);
+                    if (element) {
+                        element.addEventListener('click', handler);
+                        console.log(`✅ Event listener attached to ${id}`);
+                    } else {
+                        console.warn(`⚠️ Element ${id} not found`);
                     }
-                });
+                };
+                
+                addButtonListener('saveBtn', saveGame);
+                addButtonListener('resetBtn', resetGame);
+                addButtonListener('exportBtn', exportSave);
+                addButtonListener('importBtn', importSave);
+                addButtonListener('closeOfflineBtn', closeOfflineModal);
+                addButtonListener('goldenCat', clickGoldenCat);
+                addButtonListener('treasureBox', openTreasureBox);
                 
                 console.log('📂 Loading saved game...');
                 loadGame();
