@@ -3,11 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:;">
     <title>🐱 猫カフェ帝国 - 放置ゲーム</title>
     
     <!-- PWA設定 -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#FF69B4">
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="猫カフェ帝国">
@@ -486,7 +488,7 @@
         <div class="offline-progress" id="offlineProgress">
             <h3>🌙 お疲れ様でした！</h3>
             <p id="offlineText"></p>
-            <button class="control-btn" onclick="closeOfflineModal()">OK</button>
+            <button class="control-btn" id="closeOfflineBtn">OK</button>
         </div>
 
         <div class="stats">
@@ -513,12 +515,12 @@
                 <button class="cat-button" id="catButton">🐱</button>
                 
                 <!-- 🌟 ゴールデン猫（ランダム出現） -->
-                <button class="golden-cat-button" id="goldenCat" onclick="clickGoldenCat()" style="display: none;">
+                <button class="golden-cat-button" id="goldenCat" style="display: none;">
                     🌟
                 </button>
                 
                 <!-- 💎 宝箱（ランダム出現） -->
-                <div class="treasure-box" id="treasureBox" onclick="openTreasureBox()" style="display: none;">
+                <div class="treasure-box" id="treasureBox" style="display: none;">
                     📦✨
                 </div>
                 
@@ -530,10 +532,10 @@
                 </div>
                 
                 <div class="controls">
-                    <button class="control-btn" onclick="saveGame()">💾 セーブ</button>
-                    <button class="control-btn" onclick="resetGame()">🔄 リセット</button>
-                    <button class="control-btn" onclick="exportSave()">📤 エクスポート</button>
-                    <button class="control-btn" onclick="importSave()">📥 インポート</button>
+                    <button class="control-btn" id="saveBtn">💾 セーブ</button>
+                    <button class="control-btn" id="resetBtn">🔄 リセット</button>
+                    <button class="control-btn" id="exportBtn">📤 エクスポート</button>
+                    <button class="control-btn" id="importBtn">📥 インポート</button>
                 </div>
             </div>
 
@@ -545,7 +547,7 @@
                     <h3>⭐ プレステージ</h3>
                     <p>リセットして<span id="prestigeGain">0</span>ポイント獲得</p>
                     <p>プレステージポイント: 生産量+<span id="prestigeBonus">0</span>%</p>
-                    <button class="prestige-btn" onclick="prestige()">⭐ プレステージ実行</button>
+                    <button class="prestige-btn" id="prestigeBtn">⭐ プレステージ実行</button>
                 </div>
             </div>
         </div>
@@ -922,57 +924,6 @@
             }
         }
 
-        // テスト用：ランダムイベント強制発生
-        function triggerRandomEvent() {
-            if (Math.random() < 0.5) {
-                showGoldenCat();
-                showGameNotification('🌟 ゴールデン猫を強制出現させました！', 'warning');
-            } else {
-                showTreasureBox();
-                showGameNotification('💎 宝箱を強制出現させました！', 'warning');
-            }
-        }
-
-        // テスト用：クリティカル強制発生
-        function forceCritical() {
-            // 一時的にクリティカル率を100%にする
-            const originalChance = gameData.randomEvents.criticalClickChance;
-            gameData.randomEvents.criticalClickChance = 1.0;
-            
-            // 仮想的なイベントオブジェクトを作成
-            const fakeEvent = {
-                clientX: window.innerWidth / 2,
-                clientY: window.innerHeight / 2
-            };
-            
-            clickCat(fakeEvent);
-            
-            // クリティカル率を元に戻す
-            gameData.randomEvents.criticalClickChance = originalChance;
-            
-            showGameNotification('💥 強制クリティカルヒット！', 'warning');
-        }
-
-        // デバッグ情報表示
-        function showDebugInfo() {
-            const debugInfo = `
-🔍 デバッグ情報:
-━━━━━━━━━━━━━━━━━━━━
-🐱 猫: ${formatNumber(gameData.cats)}
-📊 総猫数: ${formatNumber(gameData.totalCatsEver)}
-👆 クリック数: ${gameData.totalClicks}
-⭐ プレステージ: ${gameData.prestigePoints}
-💥 クリティカル率: ${(gameData.randomEvents.criticalClickChance * 100).toFixed(1)}%
-🔥 連続クリティカル: ${gameData.randomEvents.consecutiveCriticals}
-🌟 ゴールデン猫: ${gameData.randomEvents.goldenCatActive ? '出現中' : '待機中'}
-💎 宝箱: ${gameData.randomEvents.treasureBoxActive ? '出現中' : '待機中'}
-━━━━━━━━━━━━━━━━━━━━
-            `;
-            
-            console.log(debugInfo);
-            alert(debugInfo);
-        }
-
         // アップグレード購入
         function buyUpgrade(upgradeKey) {
             console.log('buyUpgrade called with:', upgradeKey);
@@ -1269,11 +1220,7 @@
                 
                 const upgradeDiv = document.createElement('div');
                 upgradeDiv.className = `upgrade-item ${affordable ? 'affordable' : 'expensive'}`;
-                
-                upgradeDiv.addEventListener('click', function() {
-                    console.log('🎯 Upgrade clicked:', key);
-                    buyUpgrade(key);
-                });
+                upgradeDiv.dataset.upgradeKey = key;
                 
                 if (affordable) {
                     upgradeDiv.style.cursor = 'pointer';
@@ -1668,7 +1615,7 @@
             modal.appendChild(dialog);
             document.body.appendChild(modal);
             
-            document.getElementById('confirmImport').onclick = function() {
+            document.getElementById('confirmImport').addEventListener('click', function() {
                 const saveData = document.getElementById('saveDataInput').value.trim();
                 if (saveData) {
                     try {
@@ -1682,17 +1629,17 @@
                 } else {
                     showGameNotification('⚠️ セーブデータが入力されていません。', 'warning');
                 }
-            };
+            });
             
-            document.getElementById('cancelImport').onclick = function() {
+            document.getElementById('cancelImport').addEventListener('click', function() {
                 document.body.removeChild(modal);
-            };
+            });
             
-            modal.onclick = function(e) {
+            modal.addEventListener('click', function(e) {
                 if (e.target === modal) {
                     document.body.removeChild(modal);
                 }
-            };
+            });
         }
 
         function exportSave() {
@@ -1751,15 +1698,15 @@
             textarea.select();
             textarea.setSelectionRange(0, 99999);
             
-            document.getElementById('closeExport').onclick = function() {
+            document.getElementById('closeExport').addEventListener('click', function() {
                 document.body.removeChild(modal);
-            };
+            });
             
-            modal.onclick = function(e) {
+            modal.addEventListener('click', function(e) {
                 if (e.target === modal) {
                     document.body.removeChild(modal);
                 }
-            };
+            });
             
             showGameNotification('📤 セーブデータを表示しました。手動でコピーしてください。', 'warning');
         }
@@ -1806,41 +1753,6 @@
                     notification.parentNode.removeChild(notification);
                 }
             }, 3000);
-        }
-
-        // テスト用：リセット機能テスト
-        function testReset() {
-            console.log('🧪 Test reset function called');
-            showGameNotification('🧪 リセットテスト: ダイアログが表示されるかテストします', 'warning');
-            
-            setTimeout(() => {
-                if (window.confirm && window.confirm('テスト用リセット：ゲームデータを初期化しますか？')) {
-                    executeReset();
-                } else {
-                    console.log('🧪 Executing test reset directly');
-                    executeReset();
-                }
-            }, 1000);
-        }
-
-        // テスト用：猫を100匹追加
-        function addTestCats() {
-            gameData.cats += 100;
-            gameData.totalCatsEver += 100;
-            console.log('🧪 Added 100 test cats. Total cats:', gameData.cats);
-            updateDisplay();
-            
-            showGameNotification('🧪 テスト: +100 猫を追加しました！', 'warning');
-        }
-
-        // テスト用：猫を1000匹追加
-        function addTestCats1000() {
-            gameData.cats += 1000;
-            gameData.totalCatsEver += 1000;
-            console.log('🧪 Added 1000 test cats. Total cats:', gameData.cats);
-            updateDisplay();
-            
-            showGameNotification('🧪 テスト: +1000 猫を追加しました！', 'warning');
         }
 
         // ゲームループ
@@ -1899,6 +1811,7 @@
                 
                 console.log('✅ All required DOM elements found');
                 
+                // イベントリスナーの設定
                 const catButton = document.getElementById('catButton');
                 if (catButton) {
                     catButton.addEventListener('click', function(event) {
@@ -1909,6 +1822,29 @@
                 } else {
                     console.error('❌ Cat button not found!');
                 }
+                
+                // コントロールボタンのイベントリスナー
+                document.getElementById('saveBtn').addEventListener('click', saveGame);
+                document.getElementById('resetBtn').addEventListener('click', resetGame);
+                document.getElementById('exportBtn').addEventListener('click', exportSave);
+                document.getElementById('importBtn').addEventListener('click', importSave);
+                document.getElementById('closeOfflineBtn').addEventListener('click', closeOfflineModal);
+                document.getElementById('prestigeBtn').addEventListener('click', prestige);
+                
+                // ゴールデン猫と宝箱のイベントリスナー
+                document.getElementById('goldenCat').addEventListener('click', clickGoldenCat);
+                document.getElementById('treasureBox').addEventListener('click', openTreasureBox);
+                
+                // アップグレードのクリックイベント（イベントデリゲーション）
+                document.getElementById('upgradesList').addEventListener('click', function(event) {
+                    const upgradeItem = event.target.closest('.upgrade-item');
+                    if (upgradeItem && upgradeItem.classList.contains('affordable')) {
+                        const upgradeKey = upgradeItem.dataset.upgradeKey;
+                        if (upgradeKey) {
+                            buyUpgrade(upgradeKey);
+                        }
+                    }
+                });
                 
                 console.log('📂 Loading saved game...');
                 loadGame();
