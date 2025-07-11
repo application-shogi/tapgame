@@ -4,6 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🐱 猫カフェ帝国 - 放置ゲーム</title>
+    
+    <!-- PWA設定 -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#FF69B4">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="猫カフェ帝国">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    
+    <!-- SEO・OGP設定 -->
+    <meta name="description" content="クリックして猫を集めよう！放置して帝国を築こう！かわいい猫たちと一緒に最強の猫帝国を作り上げる放置系クリッカーゲーム">
+    <meta property="og:title" content="猫カフェ帝国 - 放置ゲーム">
+    <meta property="og:description" content="クリックして猫を集めよう！放置して帝国を築こう！">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="icon-512.png">
+    
     <style>
         * {
             margin: 0;
@@ -518,12 +534,6 @@
                     <button class="control-btn" onclick="resetGame()">🔄 リセット</button>
                     <button class="control-btn" onclick="exportSave()">📤 エクスポート</button>
                     <button class="control-btn" onclick="importSave()">📥 インポート</button>
-                    <button class="control-btn" onclick="addTestCats()" style="background: #FFA500;">🧪 +100猫</button>
-                    <button class="control-btn" onclick="addTestCats1000()" style="background: #FF6347;">🧪 +1000猫</button>
-                    <button class="control-btn" onclick="testReset()" style="background: #9932CC;">🧪 リセットテスト</button>
-                    <button class="control-btn" onclick="triggerRandomEvent()" style="background: #FF69B4;">🎲 ランダム発生</button>
-                    <button class="control-btn" onclick="forceCritical()" style="background: #FFD700;">💥 クリティカル</button>
-                    <button class="control-btn" onclick="showDebugInfo()" style="background: #9370DB;">🔍 デバッグ</button>
                 </div>
             </div>
 
@@ -1855,6 +1865,19 @@
         // 初期化
         document.addEventListener('DOMContentLoaded', function() {
             console.log('🎮 DOM loaded, initializing game...');
+            
+            // Service Workerの登録（PWA対応）
+            if ('serviceWorker' in navigator) {
+                window.addEventListener('load', function() {
+                    navigator.serviceWorker.register('./service-worker.js')
+                        .then(function(registration) {
+                            console.log('✅ ServiceWorker registration successful:', registration.scope);
+                        })
+                        .catch(function(err) {
+                            console.log('❌ ServiceWorker registration failed:', err);
+                        });
+                });
+            }
             
             try {
                 const requiredElements = [
